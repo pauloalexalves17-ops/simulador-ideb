@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media print {
+  header,
+  footer,
+  button {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  section,
+  div {
+    box-shadow: none !important;
+  }
+}
