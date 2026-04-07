@@ -1,4 +1,4 @@
-import { DadosEntrada } from "@/types/ideb";
+import { DadosEntrada } from "@/types/typesideb";
 import { ANOS_POR_ETAPA } from "@/lib/ideb";
 
 export function validarDadosIdeb(dados: DadosEntrada): string[] {

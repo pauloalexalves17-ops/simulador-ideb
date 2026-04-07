@@ -1,4 +1,4 @@
-import { DadosEntrada, EtapaEnsino, ResultadoCalculo } from "@/types/ideb";
+import { DadosEntrada, EtapaEnsino, ResultadoCalculo } from "@/types/typesideb";
 
 export const ANOS_POR_ETAPA: Record<EtapaEnsino, string[]> = {
   "Anos Iniciais": ["1", "2", "3", "4", "5"],

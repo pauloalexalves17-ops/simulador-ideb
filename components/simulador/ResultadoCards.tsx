@@ -1,36 +1,45 @@
-import { ResultadoCalculo } from '@/types/ideb'
-import { formatarNumero } from '@/lib/format'
-import StatCard from '@/components/ui/StatCard'
-import StatusBadge from '@/components/ui/StatusBadge'
+import { ResultadoCalculo } from "@/types/typesideb";
+import { formatarNumero } from "@/lib/format";
+import StatCard from "@/components/ui/StatCard";
 
 type Props = {
-  resultado: ResultadoCalculo
-}
+  resultado: ResultadoCalculo;
+};
 
 export default function ResultadoCards({ resultado }: Props) {
   return (
-    <section className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <StatCard
-        label="Taxa de aprovação"
-        value={`${formatarNumero(resultado.taxaAprovacao)}%`}
+        label="Aprendizado"
+        value={formatarNumero(resultado.aprendizado)}
+      />
+
+      <StatCard
+        label="Fluxo"
+        value={
+          resultado.fluxo !== null
+            ? formatarNumero(Number(resultado.fluxo))
+            : "Não informado"
+        }
+      />
+
+      <StatCard
+        label="Taxa média de aprovação"
+        value={
+          resultado.taxaMediaAprovacao !== null
+            ? `${formatarNumero(resultado.taxaMediaAprovacao)}%`
+            : "Não informada"
+        }
       />
 
       <StatCard
         label="IDEB projetado"
-        value={formatarNumero(resultado.idebProjetado)}
+        value={
+          resultado.idebProjetado !== null
+            ? formatarNumero(resultado.idebProjetado)
+            : "Não calculado"
+        }
       />
-
-      <StatCard
-        label="Meta inteligente"
-        value={formatarNumero(resultado.meta)}
-      />
-
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <p className="text-sm text-slate-500">Situação</p>
-        <div className="mt-3">
-          <StatusBadge status={resultado.statusMeta} />
-        </div>
-      </div>
     </section>
-  )
+  );
 }
