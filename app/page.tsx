@@ -881,7 +881,7 @@ export default function HomePage() {
               </div>
 
               <h3 className="text-lg font-semibold text-slate-900">
-                Paulo Alex
+                Prof. Paulo Alexandre Alves
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
