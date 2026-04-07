@@ -8,7 +8,7 @@ import {
   EtapaEnsino,
   ResultadoCalculo,
   TaxasAprovacaoPorAno,
-} from "@/types/ideb";
+} from "@/types/typesideb";
 
 type EscolaJson = {
   uf?: string;

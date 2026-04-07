@@ -1,4 +1,4 @@
-import { ResultadoCalculo } from '@/types/ideb'
+import { ResultadoCalculo } from '@/types/typesideb'
 import { formatarNumero } from '@/lib/format'
 
 type Props = {
