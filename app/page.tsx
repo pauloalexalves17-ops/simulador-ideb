@@ -805,37 +805,33 @@ export default function HomePage() {
 
       {/* IDEB SIMULADO */}
       <div
-        className="rounded-2xl p-6 text-center"
-        style={{
-          backgroundColor: "#f8fafc",
-          border: "1px solid #cbd5e1",
-        }}
-      >
-        <h3 className="text-2xl font-semibold text-black">
-          IDEB simulado
-        </h3>
+  className="rounded-2xl p-6 text-center shadow-lg"
+  style={{
+    background: "linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)",
+    color: "#ffffff",
+    border: "1px solid #1d4ed8",
+  }}
+>
+        <h3 className="text-xl font-semibold opacity-90">
+  IDEB simulado
+</h3>
 
-        <p className="mt-3 text-5xl font-bold" style={{ color: "#f97316" }}>
+        <p className="mt-4 text-7xl font-bold">
           {resultado.idebProjetado !== null
             ? resultado.idebProjetado.toFixed(1).replace(".", ",")
             : "—"}
         </p>
 
-        <p className="mt-4 text-base text-slate-500">
-          Resultado projetado.
-        </p>
+        <p className="mt-3 text-sm opacity-90">
+  Resultado projetado da escola
+</p>
 
         {diferencaIdeb !== null && (
-          <p
-            className="mt-3 text-sm font-semibold"
-            style={{
-              color: diferencaIdeb >= 0 ? "#16a34a" : "#dc2626",
-            }}
-          >
-            Δ {diferencaIdeb > 0 ? "+" : ""}
-            {diferencaIdeb.toFixed(1).replace(".", ",")}
-          </p>
-        )}
+  <p className="mt-3 text-sm font-semibold">
+    Δ {diferencaIdeb > 0 ? "+" : ""}
+    {diferencaIdeb.toFixed(1).replace(".", ",")}
+  </p>
+)}
       </div>
 
     </div>
