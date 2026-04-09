@@ -25,4 +25,17 @@ body {
   div {
     box-shadow: none !important;
   }
+  
+  .pdf-safe * {
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+.pdf-safe,
+.pdf-safe * {
+  color-scheme: light;
+}
+
+.pdf-safe * {
+  forced-color-adjust: none;
+}
 }

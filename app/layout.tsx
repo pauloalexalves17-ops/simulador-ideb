@@ -14,12 +14,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="bg-slate-100 text-slate-800 antialiased">
-        <header className="bg-slate-900 text-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 py-4 md:px-6">
-            <h1 className="text-xl font-semibold">Simulador IDEB</h1>
-          </div>
-        </header>
-
+        
         <main>{children}</main>
 
         <footer className="mt-10 border-t border-slate-200 bg-white">
