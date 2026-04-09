@@ -304,6 +304,23 @@ export default function HomePage() {
 
     const margem = 14;
     let y = 18;
+    const idebProjetadoValor =
+  resultado.idebProjetado !== null ? Number(resultado.idebProjetado) : null;
+
+const idebRealValor =
+  idebReal !== null ? Number(idebReal) : null;
+
+const variacaoIdeb =
+  idebProjetadoValor !== null && idebRealValor !== null
+    ? Number((idebProjetadoValor - idebRealValor).toFixed(1))
+    : null;
+
+const crescimentoPercentual =
+  idebProjetadoValor !== null &&
+  idebRealValor !== null &&
+  idebRealValor !== 0
+    ? Number((((idebProjetadoValor - idebRealValor) / idebRealValor) * 100).toFixed(1))
+    : null;
 
     const azulEscuro = "#0f172a";
     const azul = "#2563eb";
@@ -402,7 +419,7 @@ export default function HomePage() {
       const [vr, vg, vb] = rgb(valorColor);
       pdf.setTextColor(vr, vg, vb);
       pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(24);
+      pdf.setFontSize(fundo === "#2563eb" ? 32 : 24);
       pdf.text(valor, x + cardW / 2, cardY + 28, { align: "center" });
 
       pdf.setTextColor(texto);
@@ -439,18 +456,95 @@ export default function HomePage() {
     );
 
     desenharCard(
-      x4,
-      "IDEB simulado",
-      resultado.idebProjetado !== null
-        ? resultado.idebProjetado.toFixed(1).replace(".", ",")
-        : "-",
-      "Resultado projetado para o cenário informado.",
-      branco,
-      azul,
-      branco
-    );
+  x4,
+  "IDEB SIMULADO",
+  resultado.idebProjetado !== null
+    ? resultado.idebProjetado.toFixed(1).replace(".", ",")
+    : "-",
+  "Resultado projetado para o cenário informado.",
+  branco,
+  "#2563eb",
+  branco
+);
 
     y += 65;
+    pdf.setTextColor(15, 23, 42);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(12);
+pdf.text("Comparativo", margem, y);
+
+y += 6;
+
+pdf.setDrawColor(226, 232, 240);
+pdf.roundedRect(margem, y, pageWidth - margem * 2, 20, 3, 3);
+
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(10);
+pdf.setTextColor(71, 85, 105);
+
+pdf.text(
+  `Variação do IDEB: ${
+    variacaoIdeb !== null
+      ? `${variacaoIdeb > 0 ? "+" : ""}${variacaoIdeb.toFixed(1).replace(".", ",")}`
+      : "-"
+  }`,
+  margem + 4,
+  y + 7
+);
+
+pdf.text(
+  `Crescimento percentual: ${
+    crescimentoPercentual !== null
+      ? `${crescimentoPercentual > 0 ? "+" : ""}${crescimentoPercentual
+          .toFixed(1)
+          .replace(".", ",")}%`
+      : "-"
+  }`,
+  margem + 4,
+  y + 13
+);
+
+y += 30;
+pdf.setTextColor(15, 23, 42);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(12);
+pdf.text("Interpretação", margem, y);
+
+y += 6;
+
+pdf.setDrawColor(226, 232, 240);
+pdf.roundedRect(margem, y, pageWidth - margem * 2, 28, 3, 3);
+
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(9);
+pdf.setTextColor(71, 85, 105);
+
+let interpretacao = "";
+
+if (variacaoIdeb !== null) {
+  if (variacaoIdeb > 0) {
+    interpretacao =
+      "A projeção indica crescimento no IDEB da escola em relação ao resultado de referência, sugerindo impacto positivo das condições informadas.";
+  } else if (variacaoIdeb < 0) {
+    interpretacao =
+      "A projeção indica queda no IDEB da escola em relação ao resultado de referência. Recomenda-se revisão das proficiências e taxas de aprovação.";
+  } else {
+    interpretacao =
+      "A projeção indica manutenção do IDEB da escola, com estabilidade no cenário informado.";
+  }
+} else {
+  interpretacao =
+    "A projeção foi gerada com base nos dados informados. Para análise mais precisa, utilize também o IDEB real da escola.";
+}
+
+const textoInterpretacao = pdf.splitTextToSize(
+  interpretacao,
+  pageWidth - margem * 2 - 8
+);
+
+pdf.text(textoInterpretacao, margem + 4, y + 6);
+
+y += 38;
 
     pdf.setTextColor(azulEscuro);
     pdf.setFont("helvetica", "bold");
@@ -827,8 +921,7 @@ export default function HomePage() {
 
               <button
                 type="button"
-                onClick={handleGerarPDF}
-                disabled={!resultado}
+                onClick={handleGerarPDF}               
                 className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Gerar PDF
