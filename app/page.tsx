@@ -86,6 +86,10 @@ export default function HomePage() {
   const [idebReal, setIdebReal] = useState<number | null>(null);
   const [baseEscolas, setBaseEscolas] = useState<EscolaJson[]>([]);
 
+  const [nomeResponsavel, setNomeResponsavel] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [email, setEmail] = useState("");
+
   const [ufSelecionada, setUfSelecionada] = useState("");
   const [municipioSelecionado, setMunicipioSelecionado] = useState("");
   const [redeSelecionada, setRedeSelecionada] = useState("");
@@ -281,6 +285,11 @@ export default function HomePage() {
     const novosErros = validarDadosIdeb(dados);
     setErros(novosErros);
 
+    if (!nomeResponsavel || !whatsapp) {
+  alert("Preencha seu nome e WhatsApp para continuar.");
+  return;
+}
+
     if (novosErros.length > 0) {
       setResultado(null);
       return;
@@ -291,12 +300,18 @@ export default function HomePage() {
   }
 
  async function handleGerarPDF() {
+  if (!nomeResponsavel || !whatsapp) {
+    alert("Preencha seu nome e WhatsApp para gerar o relatório.");
+    return;
+  }
+
   if (!resultado) {
     alert("Faça o cálculo antes de gerar o PDF.");
     return;
   }
 
   try {
+    
     const { jsPDF } = await import("jspdf");
 
     const pdf = new jsPDF("p", "mm", "a4");
@@ -707,437 +722,476 @@ y += 38;
               </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              <div>
-                <label className={classeLabel}>Etapa de ensino</label>
-                <select
-                  value={dados.etapaEnsino}
-                  onChange={(e) => handleEtapa(e.target.value)}
-                  className={classeCampo}
-                >
-                  <option value="Anos Iniciais">Anos Iniciais (1º ao 5º)</option>
-                  <option value="Anos Finais">Anos Finais (6º ao 9º)</option>
-                </select>
-              </div>
+<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-12">
+  <div className="lg:col-span-3">
+    <label className={classeLabel}>Etapa de ensino</label>
+    <select
+      value={dados.etapaEnsino}
+      onChange={(e) => handleEtapa(e.target.value)}
+      className={classeCampo}
+    >
+      <option value="Anos Iniciais">Anos Iniciais (1º ao 5º)</option>
+      <option value="Anos Finais">Anos Finais (6º ao 9º)</option>
+    </select>
+  </div>
 
-              <div>
-                <label className={classeLabel}>Estado (UF)</label>
-                <select
-                  value={ufSelecionada}
-                  onChange={(e) => {
-                    setUfSelecionada(e.target.value);
-                    setMunicipioSelecionado("");
-                    setRedeSelecionada("");
-                    limparDadosEscola();
-                    setErros([]);
-                  }}
-                  className={classeCampo}
-                >
-                  <option value="">Selecione a UF</option>
-                  {ufs.map((uf) => (
-                    <option key={uf} value={uf}>
-                      {uf}
-                    </option>
-                  ))}
-                </select>
-              </div>
+  <div className="lg:col-span-1">
+    <label className={classeLabel}>Estado (UF)</label>
+    <select
+      value={ufSelecionada}
+      onChange={(e) => setUfSelecionada(e.target.value)}
+      className={classeCampo}
+    >
+      <option value="">Selecione a UF</option>
+      {ufs.map((uf) => (
+        <option key={uf} value={uf}>
+          {uf}
+        </option>
+      ))}
+    </select>
+  </div>
 
-              <div>
-                <label className={classeLabel}>Município</label>
-                <select
-                  value={municipioSelecionado}
-                  onChange={(e) => {
-                    setMunicipioSelecionado(e.target.value);
-                    setRedeSelecionada("");
-                    limparDadosEscola();
-                    setErros([]);
-                  }}
-                  disabled={!ufSelecionada}
-                  className={classeCampo}
-                >
-                  <option value="">Selecione o município</option>
-                  {municipios.map((municipio) => (
-                    <option key={municipio} value={municipio}>
-                      {municipio}
-                    </option>
-                  ))}
-                </select>
-              </div>
+  <div className="lg:col-span-3">
+    <label className={classeLabel}>Município</label>
+    <select
+      value={municipioSelecionado}
+      onChange={(e) => setMunicipioSelecionado(e.target.value)}
+      className={classeCampo}
+      disabled={!ufSelecionada}
+    >
+      <option value="">Selecione o município</option>
+      {municipios.map((m) => (
+        <option key={m} value={m}>
+          {m}
+        </option>
+      ))}
+    </select>
+  </div>
 
-              <div>
-                <label className={classeLabel}>Rede</label>
-                <select
-                  value={redeSelecionada}
-                  onChange={(e) => {
-                    setRedeSelecionada(e.target.value);
-                    limparDadosEscola();
-                    setErros([]);
-                  }}
-                  disabled={!municipioSelecionado}
-                  className={classeCampo}
-                >
-                  <option value="">Todas as redes</option>
-                  {redes.map((rede) => (
-                    <option key={rede} value={rede}>
-                      {rede}
-                    </option>
-                  ))}
-                </select>
-              </div>
+  <div className="lg:col-span-2">
+    <label className={classeLabel}>Rede</label>
+    <select
+      value={redeSelecionada}
+      onChange={(e) => setRedeSelecionada(e.target.value)}
+      className={classeCampo}
+      disabled={!municipioSelecionado}
+    >
+      <option value="">Todas as redes</option>
+      {redes.map((r) => (
+        <option key={r} value={r}>
+          {r}
+        </option>
+      ))}
+    </select>
+  </div>
 
-              <div className="relative">
-                <label className={classeLabel}>Escola</label>
-                <input
-                  type="text"
-                  value={buscaEscola}
-                  onChange={(e) => {
-                    setBuscaEscola(e.target.value);
-                    setMostrarListaEscolas(true);
-                    setEscolaSelecionada("");
-                  }}
-                  onFocus={() => {
-                    if (municipioSelecionado) setMostrarListaEscolas(true);
-                  }}
-                  placeholder={
-                    municipioSelecionado
-                      ? "Digite o nome da escola"
-                      : "Selecione o município antes"
-                  }
-                  disabled={!municipioSelecionado}
-                  className={classeCampo}
-                />
+  <div className="lg:col-span-3 relative">
+    <label className={classeLabel}>Escola</label>
+    <input
+      type="text"
+      value={buscaEscola}
+      onChange={(e) => {
+        setBuscaEscola(e.target.value);
+        setMostrarListaEscolas(true);
+        setEscolaSelecionada("");
+      }}
+      onFocus={() => {
+        if (municipioSelecionado) setMostrarListaEscolas(true);
+      }}
+      placeholder={
+        municipioSelecionado
+          ? "Digite o nome da escola"
+          : "Selecione o município antes"
+      }
+      disabled={!municipioSelecionado}
+      className={classeCampo}
+    />
 
-                {mostrarListaEscolas &&
-                  municipioSelecionado &&
-                  escolasFiltradas.length > 0 && (
-                    <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
-                      {escolasFiltradas.map((escola) => (
-                        <button
-                          key={getCodigoEscola(escola)}
-                          type="button"
-                          onClick={() => handleSelecionarEscola(getCodigoEscola(escola))}
-                          className="block w-full border-b border-slate-100 px-4 py-3 text-left text-sm text-slate-700 transition hover:bg-slate-50 last:border-b-0"
-                        >
-                          {getEscola(escola)}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                {mostrarListaEscolas &&
-                  municipioSelecionado &&
-                  buscaEscola.trim() !== "" &&
-                  escolasFiltradas.length === 0 && (
-                    <div className="absolute z-20 mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-xl">
-                      Nenhuma escola encontrada.
-                    </div>
-                  )}
-              </div>
+    {mostrarListaEscolas &&
+      municipioSelecionado &&
+      escolasFiltradas.length > 0 && (
+        <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-lg">
+          {escolasFiltradas.map((escola) => (
+            <div
+              key={getCodigoEscola(escola)}
+              onClick={() => {
+                handleSelecionarEscola(getCodigoEscola(escola));
+                setBuscaEscola(getEscola(escola));
+                setMostrarListaEscolas(false);
+              }}
+              className="cursor-pointer px-4 py-2 hover:bg-slate-100"
+            >
+              {getEscola(escola)}
             </div>
+          ))}
+        </div>
+      )}
 
-            {dados.nomeEscola && (
-              <div className="mt-5 rounded-3xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-4 text-sm leading-6 text-slate-700 shadow-sm">
+    {mostrarListaEscolas &&
+      municipioSelecionado &&
+      buscaEscola.trim() !== "" &&
+      escolasFiltradas.length === 0 && (
+        <div className="absolute z-20 mt-2 w-full rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-500 shadow">
+          Nenhuma escola encontrada.
+        </div>
+      )}
+  </div>
+</div>
+ 
+{dados.nomeEscola && (
+  <div className="mt-5 rounded-3xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-4 text-sm leading-6 text-slate-700 shadow-sm">
                 <span className="font-semibold text-blue-700">Base carregada:</span>{" "}
                 os dados da escola foram preenchidos automaticamente com base no Inep 2023.
                 As taxas de aprovação podem ser ajustadas para simular cenários mais recentes.
               </div>
             )}
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <div>
-                <label className={classeLabel}>Proficiência em Língua Portuguesa</label>
-                <input
-                  type="number"
-                  value={dados.proficienciaLP || ""}
-                  onChange={(e) => handleNumero("proficienciaLP", e.target.value)}
-                  placeholder="Ex.: 220"
-                  className={classeCampo}
-                />
-              </div>
+    <div className="mt-0 grid gap-6 lg:grid-cols-[2.8fr_0.7fr]">
+  <div>
+    <div className="grid gap-4 md:grid-cols-2">
+      <div>
+        <label className={classeLabel}>Proficiência em Língua Portuguesa</label>
+        <input
+          type="number"
+          value={dados.proficienciaLP || ""}
+          onChange={(e) => handleNumero("proficienciaLP", e.target.value)}
+          placeholder="Ex.: 220"
+          className={classeCampo}
+        />
+      </div>
 
-              <div>
-                <label className={classeLabel}>Proficiência em Matemática</label>
-                <input
-                  type="number"
-                  value={dados.proficienciaMT || ""}
-                  onChange={(e) => handleNumero("proficienciaMT", e.target.value)}
-                  placeholder="Ex.: 235"
-                  className={classeCampo}
-                />
-              </div>
-            </div>
+      <div>
+        <label className={classeLabel}>Proficiência em Matemática</label>
+        <input
+          type="number"
+          value={dados.proficienciaMT || ""}
+          onChange={(e) => handleNumero("proficienciaMT", e.target.value)}
+          placeholder="Ex.: 235"
+          className={classeCampo}
+        />
+      </div>
+    </div>
 
-            <div className="mt-8 rounded-[28px] border border-slate-200 bg-slate-50 p-6">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-semibold tracking-tight text-slate-900">
-                    Taxas de aprovação por ano/série (%)
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Informe as taxas para compor o cálculo do fluxo escolar.
-                  </p>
-                </div>
-              </div>
+    <div className="mt-8 rounded-[28px] border border-slate-200 bg-slate-50 p-6">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight text-slate-900">
+            Taxas de aprovação por ano/série (%)
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Informe as taxas para compor o cálculo do fluxo escolar.
+          </p>
+        </div>
+      </div>
 
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {anosDaEtapa.map((ano) => (
-                  <div key={ano}>
-                    <label className={classeLabel}>{ano}º ano</label>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={dados.taxasAprovacao[ano as keyof TaxasAprovacaoPorAno]}
-                      onChange={(e) => handleTaxaAno(ano, e.target.value)}
-                      placeholder="Ex.: 98,5"
-                      className={classeCampo}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <p className="mt-4 text-sm leading-6 text-slate-500">
-                As taxas de aprovação podem ser consultadas no Censo Escolar 2025.
-                Se a escola não tiver esses dados, deixe os campos em branco. Nesse caso,
-                o sistema calculará apenas o aprendizado.
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleCalcular}
-                className="inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 font-semibold text-white shadow-lg shadow-lg transition hover:scale-[1.01] hover:from-blue-700 hover:to-indigo-700"
-              >
-                Calcular
-              </button>
-
-              <button
-                type="button"
-                onClick={handleLimpar}
-                className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-              >
-                Limpar
-              </button>
-
-              <button
-                type="button"
-                onClick={handleGerarPDF}               
-                className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Gerar PDF
-              </button>
-            </div>
-
-            {erros.length > 0 && (
-              <div className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-5">
-                <h3 className="mb-2 font-semibold text-red-700">Verifique os dados:</h3>
-                <ul className="list-disc pl-5 text-sm leading-6 text-red-600">
-                  {erros.map((erro, index) => (
-                    <li key={index}>{erro}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-        )}
-
-        {resultado && (
-          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm md:p-8">
-            <div className="mb-6 flex flex-col gap-2">
-              <div className="inline-flex w-fit rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-600">
-                Resultado
-              </div>
-
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-                {modoRelatorio
-                  ? `Resumo da projeção — ${dados.etapaEnsino}`
-                  : `Resultado da simulação — ${dados.etapaEnsino}`}
-              </h2>
-
-              <p className="text-sm leading-6 text-slate-600">
-                Visualização direta dos principais indicadores usados na projeção.
-              </p>
-            </div>
-
-            {modoRelatorio && (
-              <div className="mb-6 grid gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 md:grid-cols-2 xl:grid-cols-5">
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                  <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Escola
-                  </span>
-                  <span className="mt-1 block font-semibold text-slate-900">
-                    {dados.nomeEscola || "—"}
-                  </span>
-                </div>
-
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                  <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Município
-                  </span>
-                  <span className="mt-1 block font-semibold text-slate-900">
-                    {municipioSelecionado || "—"}
-                  </span>
-                </div>
-
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                  <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    UF
-                  </span>
-                  <span className="mt-1 block font-semibold text-slate-900">
-                    {ufSelecionada || "—"}
-                  </span>
-                </div>
-
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                  <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Rede
-                  </span>
-                  <span className="mt-1 block font-semibold text-slate-900">
-                    {redeSelecionada || "—"}
-                  </span>
-                </div>
-
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                  <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Data
-                  </span>
-                  <span className="mt-1 block font-semibold text-slate-900">
-                    {formatarDataAtual()}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 text-center shadow-sm">
-                <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 shadow-sm">
-                  Indicador
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900">Aprendizado</h3>
-                <p className="mt-4 text-5xl font-bold tracking-tight text-amber-500">
-                  {resultado.aprendizado.toFixed(2).replace(".", ",")}
-                </p>
-                <p className="mt-4 text-sm leading-6 text-slate-500">
-                  Resultado calculado a partir das proficiências.
-                </p>
-              </div>
-
-              <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 text-center shadow-sm">
-                <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 shadow-sm">
-                  Indicador
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900">Fluxo</h3>
-                <p className="mt-4 text-5xl font-bold tracking-tight text-amber-500">
-                  {resultado.fluxo !== null
-                    ? Number(resultado.fluxo).toFixed(2).replace(".", ",")
-                    : "—"}
-                </p>
-                <p className="mt-4 text-sm leading-6 text-slate-500">
-                  Calculado a partir das taxas de aprovação.
-                </p>
-              </div>
-
-              <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 text-center shadow-sm">
-                <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 shadow-sm">
-                  Referência
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900">IDEB real 2023</h3>
-                <p className="mt-4 text-5xl font-bold tracking-tight text-slate-700">
-                  {idebReal !== null ? idebReal.toFixed(1).replace(".", ",") : "—"}
-                </p>
-                <p className="mt-4 text-sm leading-6 text-slate-500">
-                  Resultado oficial divulgado para a escola.
-                </p>
-              </div>
-
-              <div className="rounded-[28px] border border-blue-700 bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-600 p-6 text-center text-white shadow-[0_20px_50px_rgba(37,99,235,0.28)]">
-                <div className="mb-3 inline-flex rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-100">
-                  Projeção principal
-                </div>
-                <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-100">
-                  IDEB simulado
-                </h3>
-                <p className="mt-4 text-7xl font-bold tracking-tight">
-                  {resultado.idebProjetado !== null
-                    ? resultado.idebProjetado.toFixed(1).replace(".", ",")
-                    : "—"}
-                </p>
-                <p className="mt-3 text-sm text-blue-100">
-                  Resultado projetado para o cenário informado.
-                </p>
-
-                {diferencaIdeb !== null && (
-                  <div className="mt-4">
-                    <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-white">
-                      Δ {diferencaIdeb > 0 ? "+" : ""}
-                      {diferencaIdeb.toFixed(1).replace(".", ",")}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.08)] md:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex-1">
-              <div className="mb-4 inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                Referências técnicas
-              </div>
-
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-                Base de dados e metodologia
-              </h2>
-
-              <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600">
-                <p>
-                  Os dados utilizados para preenchimento automático da escola foram
-                  extraídos da divulgação oficial do Inep 2023 por escola, para{" "}
-                  <strong>Anos Iniciais</strong> e <strong>Anos Finais</strong>.
-                </p>
-
-                <p>
-                  As taxas de aprovação podem ser consultadas e atualizadas a partir
-                  dos dados do <strong>Censo Escolar 2025</strong>, permitindo
-                  simulações com base em cenários mais recentes da escola.
-                </p>
-
-                <p>
-                  A simulação considera a lógica do IDEB, combinando o desempenho em{" "}
-                  <strong>Língua Portuguesa</strong> e <strong>Matemática</strong> com
-                  o fluxo escolar da etapa selecionada.
-                </p>
-              </div>
-            </div>
-
-            <div className="w-full rounded-[28px] border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-6 shadow-sm lg:max-w-sm">
-              <div className="mb-3 inline-flex rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-700">
-                Informação
-              </div>
-
-              <h3 className="text-lg font-semibold text-slate-900">
-                Uso institucional
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Este simulador foi estruturado para uso objetivo por escolas e redes
-                de ensino, com foco na projeção direta do IDEB a partir dos dados
-                informados.
-              </p>
-
-              <div className="mt-5 border-t border-slate-200 pt-4 text-sm text-slate-600">
-                <p className="font-semibold text-slate-800">Observação</p>
-                <p className="mt-2 leading-6">
-                  O relatório em PDF mantém apresentação neutra, sem logotipo, para
-                  permitir uso em diferentes escolas e contextos administrativos.
-                </p>
-              </div>
-            </div>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {anosDaEtapa.map((ano) => (
+          <div key={ano}>
+            <label className={classeLabel}>{ano}º ano</label>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={dados.taxasAprovacao[ano as keyof TaxasAprovacaoPorAno]}
+              onChange={(e) => handleTaxaAno(ano, e.target.value)}
+              placeholder="Ex.: 98,5"
+              className={classeCampo}
+            />
           </div>
-        </section>
-            </div>
-    </main>
+        ))}
+      </div>
+
+      <p className="mt-4 text-sm leading-6 text-slate-500">
+        As taxas de aprovação podem ser consultadas no Censo Escolar 2025.
+        Se a escola não tiver esses dados, deixe os campos em branco. Nesse caso,
+        o sistema calculará apenas o aprendizado.
+      </p>
+    </div>
+
+    <div className="mt-6 flex flex-wrap gap-3">
+      <button
+        type="button"
+        onClick={handleCalcular}
+        className="inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 font-semibold text-white shadow-lg transition hover:from-blue-700 hover:to-indigo-700"
+      >
+        Calcular
+      </button>
+
+      <button
+        type="button"
+        onClick={handleLimpar}
+        className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+      >
+        Limpar
+      </button>
+
+      <button
+        type="button"
+        onClick={handleGerarPDF}
+        className="inline-flex h-12 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 px-6 font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100"
+      >
+        Gerar PDF
+      </button>
+    </div>
   </div>
+
+  <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5 h-fit">
+    <h3 className="text-base font-semibold text-slate-800">
+      Identificação
+    </h3>
+
+    <p className="mt-1 text-sm leading-6 text-slate-500">
+      Preencha seus dados para continuar a simulação.
+    </p>
+
+    <div className="mt-4 space-y-4">
+      <input
+        type="text"
+        placeholder="Seu nome"
+        className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none"
+        value={nomeResponsavel}
+        onChange={(e) => setNomeResponsavel(e.target.value)}
+      />
+
+      <input
+        type="text"
+        placeholder="WhatsApp"
+        className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none"
+        value={whatsapp}
+        onChange={(e) => setWhatsapp(e.target.value)}
+      />
+
+      <input
+        type="text"
+        placeholder="E-mail (opcional)"
+        className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+    </div>
+  </div>
+</div>
+
+{erros.length > 0 && (
+  <div className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-5">
+    <h3 className="mb-2 font-semibold text-red-700">
+      Verifique os dados:
+    </h3>
+    <ul className="list-disc pl-5 text-sm leading-6 text-red-600">
+      {erros.map((erro, index) => (
+        <li key={index}>{erro}</li>
+      ))}
+    </ul>
+  </div>
+)}
+</section>
+)}
+
+{resultado && (
+  <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm md:p-8">
+    <div className="mb-6 flex flex-col gap-2">
+      <div className="inline-flex w-fit rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-600">
+        Resultado
+      </div>
+
+      <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        {modoRelatorio
+          ? `Resumo da projeção — ${dados.etapaEnsino}`
+          : `Resultado da simulação — ${dados.etapaEnsino}`}
+      </h2>
+
+      <p className="text-sm leading-6 text-slate-600">
+        Visualização direta dos principais indicadores usados na projeção.
+      </p>
+    </div>
+
+    {modoRelatorio && (
+      <div className="mb-6 grid gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 md:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Escola
+          </span>
+          <span className="mt-1 block font-semibold text-slate-900">
+            {dados.nomeEscola || "—"}
+          </span>
+        </div>
+
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Município
+          </span>
+          <span className="mt-1 block font-semibold text-slate-900">
+            {municipioSelecionado || "—"}
+          </span>
+        </div>
+
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            UF
+          </span>
+          <span className="mt-1 block font-semibold text-slate-900">
+            {ufSelecionada || "—"}
+          </span>
+        </div>
+
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Rede
+          </span>
+          <span className="mt-1 block font-semibold text-slate-900">
+            {redeSelecionada || "—"}
+          </span>
+        </div>
+
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Data
+          </span>
+          <span className="mt-1 block font-semibold text-slate-900">
+            {formatarDataAtual()}
+          </span>
+        </div>
+      </div>
+    )}
+
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5 h-fit md:sticky md:top-24">
+        <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 shadow-sm">
+          Indicador
+        </div>
+        <h3 className="text-lg font-semibold text-slate-900">Aprendizado</h3>
+        <p className="mt-4 text-5xl font-bold tracking-tight text-amber-500">
+          {resultado.aprendizado.toFixed(2).replace(".", ",")}
+        </p>
+        <p className="mt-4 text-sm leading-6 text-slate-500">
+          Resultado calculado a partir das proficiências.
+        </p>
+      </div>
+
+      <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 text-center shadow-sm">
+        <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 shadow-sm">
+          Indicador
+        </div>
+        <h3 className="text-lg font-semibold text-slate-900">Fluxo</h3>
+        <p className="mt-4 text-5xl font-bold tracking-tight text-amber-500">
+          {resultado.fluxo !== null
+            ? Number(resultado.fluxo).toFixed(2).replace(".", ",")
+            : "—"}
+        </p>
+        <p className="mt-4 text-sm leading-6 text-slate-500">
+          Calculado a partir das taxas de aprovação.
+        </p>
+      </div>
+
+      <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 text-center shadow-sm">
+        <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 shadow-sm">
+          Referência
+        </div>
+        <h3 className="text-lg font-semibold text-slate-900">IDEB real 2023</h3>
+        <p className="mt-4 text-5xl font-bold tracking-tight text-slate-700">
+          {idebReal !== null ? idebReal.toFixed(1).replace(".", ",") : "—"}
+        </p>
+        <p className="mt-4 text-sm leading-6 text-slate-500">
+          Resultado oficial divulgado para a escola.
+        </p>
+      </div>
+
+      <div className="rounded-[28px] border border-blue-700 bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-600 p-6 text-center text-white shadow-[0_20px_50px_rgba(37,99,235,0.28)]">
+        <div className="mb-3 inline-flex rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-100">
+          Projeção principal
+        </div>
+        <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-100">
+          IDEB simulado
+        </h3>
+        <p className="mt-4 text-7xl font-bold tracking-tight">
+          {resultado.idebProjetado !== null
+            ? resultado.idebProjetado.toFixed(1).replace(".", ",")
+            : "—"}
+        </p>
+        <p className="mt-3 text-sm text-blue-100">
+          Resultado projetado para o cenário informado.
+        </p>
+
+        {diferencaIdeb !== null && (
+          <div className="mt-4">
+            <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-white">
+              Δ {diferencaIdeb > 0 ? "+" : ""}
+              {diferencaIdeb.toFixed(1).replace(".", ",")}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+<section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.08)] md:p-8">
+  <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+    <div className="flex-1">
+      <div className="mb-4 inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600">
+        Referências técnicas
+      </div>
+
+      <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        Base de dados e metodologia
+      </h2>
+
+      <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600">
+        <p>
+          Os dados utilizados para preenchimento automático da escola foram
+          extraídos da divulgação oficial do Inep 2023 por escola, para{" "}
+          <strong>Anos Iniciais</strong> e <strong>Anos Finais</strong>.
+        </p>
+
+        <p>
+          As taxas de aprovação podem ser consultadas e atualizadas a partir
+          dos dados do <strong>Censo Escolar 2025</strong>, permitindo
+          simulações com base em cenários mais recentes da escola.
+        </p>
+
+        <p>
+          A simulação considera a lógica do IDEB, combinando o desempenho em{" "}
+          <strong>Língua Portuguesa</strong> e <strong>Matemática</strong> com
+          o fluxo escolar da etapa selecionada.
+        </p>
+      </div>
+    </div>
+
+    <div className="w-full rounded-[28px] border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-6 shadow-sm lg:max-w-sm">
+      <div className="mb-3 inline-flex rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-700">
+        Informação
+      </div>
+
+      <h3 className="text-lg font-semibold text-slate-900">
+        Uso institucional
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        Este simulador foi estruturado para uso objetivo por escolas e redes
+        de ensino, com foco na projeção direta do IDEB a partir dos dados
+        informados.
+      </p>
+
+      <div className="mt-5 border-t border-slate-200 pt-4 text-sm text-slate-600">
+        <p className="font-semibold text-slate-800">Observação</p>
+        <p className="mt-2 leading-6">
+          O relatório em PDF mantém apresentação neutra, sem logotipo, para
+          permitir uso em diferentes escolas e contextos administrativos.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+</main>
+
+<footer className="mt-10 border-t border-slate-200 pt-6 text-center text-sm text-slate-500">
+  <p className="font-medium text-slate-700">
+    Simulador IDEB – Prof. Paulo Alexandre Alves
+  </p>
+  <p>
+    Contato: (21) 98687-6632 | pauloalex.alves17@gmail.com
+  </p>
+</footer>
+</div>
 );
 }
