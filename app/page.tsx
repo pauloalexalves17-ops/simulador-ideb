@@ -67,7 +67,19 @@ function getRede(item: EscolaJson) {
 function formatarDataAtual() {
   return new Date().toLocaleDateString("pt-BR");
 }
+function formatarWhatsapp(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 11);
 
+  if (numeros.length <= 2) {
+    return numeros;
+  }
+
+  if (numeros.length <= 7) {
+    return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+  }
+
+  return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+}
 export default function HomePage() {
   const relatorioRef = useRef<HTMLDivElement | null>(null);
   const [modoRelatorio, setModoRelatorio] = useState(false);
@@ -285,8 +297,15 @@ export default function HomePage() {
     const novosErros = validarDadosIdeb(dados);
     setErros(novosErros);
 
-    if (!nomeResponsavel || !whatsapp) {
+   const whatsappNumeros = whatsapp.replace(/\D/g, "");
+
+if (!nomeResponsavel || !whatsapp) {
   alert("Preencha seu nome e WhatsApp para continuar.");
+  return;
+}
+
+if (whatsappNumeros.length !== 11) {
+  alert("Informe um WhatsApp válido com DDD.");
   return;
 }
 
@@ -294,16 +313,40 @@ export default function HomePage() {
       setResultado(null);
       return;
     }
+fetch("/api/leads", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    nomeResponsavel,
+    whatsapp,
+    email,
+    escola: dados.nomeEscola,
+    municipio: municipioSelecionado,
+    uf: ufSelecionada,
+    etapaEnsino: dados.etapaEnsino,
+  }),
+}).catch(() => {
+  console.error("Não foi possível salvar o lead.");
+});
 
     const calculo = calcularIdeb(dados);
     setResultado(calculo);
   }
 
  async function handleGerarPDF() {
-  if (!nomeResponsavel || !whatsapp) {
-    alert("Preencha seu nome e WhatsApp para gerar o relatório.");
-    return;
-  }
+  const whatsappNumeros = whatsapp.replace(/\D/g, "");
+
+if (!nomeResponsavel || !whatsapp) {
+  alert("Preencha seu nome e WhatsApp para gerar o relatório.");
+  return;
+}
+
+if (whatsappNumeros.length !== 11) {
+  alert("Informe um WhatsApp válido com DDD para gerar o relatório.");
+  return;
+}
 
   if (!resultado) {
     alert("Faça o cálculo antes de gerar o PDF.");
@@ -565,7 +608,25 @@ y += 38;
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
     pdf.text("Metodologia", margem, y);
+y += 30;
 
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(9);
+pdf.setTextColor(120);
+
+pdf.text(
+  "Simulador IDEB – Prof. Paulo Alexandre Alves",
+  margem,
+  y
+);
+
+y += 5;
+
+pdf.text(
+  "Contato: (21) 98687-6632 | pauloalex.alves17@gmail.com",
+  margem,
+  y
+);
     y += 6;
 
     pdf.setDrawColor(cinzaClaro);
@@ -913,7 +974,7 @@ y += 38;
         onClick={handleCalcular}
         className="inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 font-semibold text-white shadow-lg transition hover:from-blue-700 hover:to-indigo-700"
       >
-        Calcular
+        Calcular projeção
       </button>
 
       <button
@@ -935,13 +996,19 @@ y += 38;
   </div>
 
   <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5 h-fit">
-    <h3 className="text-base font-semibold text-slate-800">
-      Identificação
-    </h3>
+    <div className="mb-4">
+  <h3 className="text-base font-semibold text-slate-800">
+  Gerar projeção do IDEB
+</h3>
 
-    <p className="mt-1 text-sm leading-6 text-slate-500">
-      Preencha seus dados para continuar a simulação.
-    </p>
+<p className="mt-1 text-sm leading-6 text-slate-500">
+  Preencha seus dados para continuar.
+</p>
+
+  <p className="mt-2 text-xs text-slate-400">
+    (leva menos de 10 segundos)
+  </p>
+</div>
 
     <div className="mt-4 space-y-4">
       <input
@@ -953,16 +1020,18 @@ y += 38;
       />
 
       <input
-        type="text"
-        placeholder="WhatsApp"
-        className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none"
-        value={whatsapp}
-        onChange={(e) => setWhatsapp(e.target.value)}
-      />
+  type="tel"
+  inputMode="numeric"
+  placeholder="WhatsApp"
+  className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none"
+  value={whatsapp}
+  maxLength={16}
+  onChange={(e) => setWhatsapp(formatarWhatsapp(e.target.value))}
+/>
 
       <input
         type="text"
-        placeholder="E-mail (opcional)"
+        placeholder="E-mail"
         className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
