@@ -1165,9 +1165,7 @@ pdf.text(
       </div>
 
       <div className="rounded-[28px] border border-blue-700 bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-600 p-6 text-center text-white shadow-[0_20px_50px_rgba(37,99,235,0.28)]">
-        <div className="mb-3 inline-flex rounded-full bg-blue-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-100">
-          Projeção principal
-        </div>
+        
         <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-100">
           IDEB simulado
         </h3>
@@ -1182,7 +1180,7 @@ pdf.text(
 
         {diferencaIdeb !== null && (
           <div className="mt-4">
-            <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-white">
+            <span className="inline-flex rounded-full bg-white px-3 py-1 text-sm font-bold text-blue-800 shadow-sm">
               Δ {diferencaIdeb > 0 ? "+" : ""}
               {diferencaIdeb.toFixed(1).replace(".", ",")}
             </span>
